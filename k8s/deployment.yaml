@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: react-wellness-app
-          image: venkateshsagar/react-wellness-app:v1.5.0-8a6e2e8
+          image: venkateshsagar/react-wellness-app:v1.7.0-b0c86de
           imagePullPolicy: Always
           ports:
             - containerPort: 80
