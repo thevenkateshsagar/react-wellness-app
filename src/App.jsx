@@ -28,7 +28,7 @@ function App() {
           welcome to GithubActions kubernetes
         </p>
         <p>
-          ArgoCD Implemented v2
+          ArgoCD Implemented v3
         </p>
       </div>
       <p className="read-the-docs">

@@ -41,6 +41,7 @@ jobs:
 
                   echo "VERSION=$VERSION"
                   echo "SHA=$SHA"
+                  echo "NEW_TAG=${VERSION}-${SHA}" >> $GITHUB_ENV
 
                   # Build main image
                   docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/react-wellness-app:${VERSION}-${SHA} .
@@ -57,3 +58,19 @@ jobs:
                   docker push ${{ secrets.DOCKERHUB_USERNAME }}/react-wellness-app:${VERSION}-${SHA}
                   docker push ${{ secrets.DOCKERHUB_USERNAME }}/react-wellness-app:${VERSION}
                   docker push ${{ secrets.DOCKERHUB_USERNAME }}/react-wellness-app:latest
+
+            # ------------------------------------------
+            # 🚀 GITOPS AUTOMATION ADDED BELOW THIS LINE
+            # ------------------------------------------
+
+            - name: Update Kubernetes Deployment YAML (GitOps Auto Tag)
+              run: |
+                  echo "Updating k8s deployment.yaml with tag: $NEW_TAG"
+                  sed -i "s|image:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/react-wellness-app:${NEW_TAG}|g" k8s/deployment.yaml
+
+            - name: Commit Updated Kubernetes Manifest
+              uses: stefanzweifel/git-auto-commit-action@v4
+              with:
+                  commit_message: "GitOps: Update image tag to ${NEW_TAG}"
+                  file_pattern: k8s/deployment.yaml
+                  branch: main
