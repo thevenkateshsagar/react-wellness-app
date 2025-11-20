@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: react-wellness-app
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: react-wellness-app
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: react-wellness-app
-          image: venkateshsagar/react-wellness-app:v1.3.0-2bc759c
+          image: venkateshsagar/react-wellness-app:v1.5.0-8a6e2e8
           imagePullPolicy: Always
           ports:
             - containerPort: 80
