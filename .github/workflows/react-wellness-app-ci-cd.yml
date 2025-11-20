@@ -1,0 +1,59 @@
+name: React CI + DockerHub (MNC Standard)
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    build-and-push:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+
+            - name: Set up Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build React App
+              run: npm run build
+
+            - name: Get Git Commit SHA
+              id: vars
+              run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+            - name: Login to DockerHub
+              uses: docker/login-action@v3
+              with:
+                  username: ${{ secrets.DOCKERHUB_USERNAME }}
+                  password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+            - name: Build & Tag Docker Images (MNC Style)
+              run: |
+                  VERSION="v1.${{ github.run_number }}.0"
+                  SHA="${{ steps.vars.outputs.sha_short }}"
+
+                  echo "VERSION=$VERSION"
+                  echo "SHA=$SHA"
+
+                  # Build main image
+                  docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/react-wellness-app:${VERSION}-${SHA} .
+
+                  # Tag additional tags
+                  docker tag ${{ secrets.DOCKERHUB_USERNAME }}/react-wellness-app:${VERSION}-${SHA} ${{ secrets.DOCKERHUB_USERNAME }}/react-wellness-app:${VERSION}
+                  docker tag ${{ secrets.DOCKERHUB_USERNAME }}/react-wellness-app:${VERSION}-${SHA} ${{ secrets.DOCKERHUB_USERNAME }}/react-wellness-app:latest
+
+            - name: Push Docker Images to DockerHub
+              run: |
+                  VERSION="v1.${{ github.run_number }}.0"
+                  SHA="${{ steps.vars.outputs.sha_short }}"
+
+                  docker push ${{ secrets.DOCKERHUB_USERNAME }}/react-wellness-app:${VERSION}-${SHA}
+                  docker push ${{ secrets.DOCKERHUB_USERNAME }}/react-wellness-app:${VERSION}
+                  docker push ${{ secrets.DOCKERHUB_USERNAME }}/react-wellness-app:latest
