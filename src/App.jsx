@@ -27,6 +27,9 @@ function App() {
          <p>
           welcome to GithubActions kubernetes
         </p>
+        <p>
+          ArgoCD Implemented v1
+        </p>
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
